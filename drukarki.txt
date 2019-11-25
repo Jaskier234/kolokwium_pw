@@ -1,0 +1,59 @@
+// jeśli założyć, że dwóch pracowników tej samej firmy nie może
+// równolegle czekać, to zadanie chyba mija się z sensem
+int ile_korzysta[K];
+int kto_korzysta[k] = {-1, ..., -1};
+int drukarka_firmy[N] = {-1, ..., -1};
+int ile_wolnych = N;
+int ile_czeka[N] = {0, ..., 0};
+int ile_rep = 0;
+semaphore CZEKANIE[N] = {0, ..., 0};
+semaphore REPREZENTANCI = 0;
+semaphore OCHRONA = 1;
+
+void chcę_drukować(int f) {
+    P(OCHRONA);
+    if (ile_rep > 0 || ile_wolnych == 0) {
+        ile_czeka[f]++;
+        if (ile_czeka[f] == 1) {
+            V(OCHRONA);
+            P(REPREZENTANCI);
+            ile_czeka[f]--;
+        } else {
+            V(OCHRONA);
+            P(CZEKANIE[f]);
+            ile_czeka[f]--;
+        }
+    }
+
+    if (drukarka_firmy[f] == -1) {
+            int d = weź_wolną_drukarkę();
+            drukarka_firmy[f] = d;
+            kto_korzysta[d] = f;
+    }
+
+    if (ile_czeka[f] > 0) {
+        V(CZEKANIE[f]);
+    }
+    
+
+    ile_korzysta[drukarka_firmy[f]]++;
+    V(OCHRONA);
+
+    drukuj(drukarka_firmy[f]);
+    
+    P(OCHRONA);
+    ile_korzysta[drukarka_firmy[f]]--;
+    if (ile_korzysta[drukarka_firmy[f]] == 0) {
+        kto_korzysta[d] == -1;
+        drukarka_firmy[f] = -1;
+        if (ile_rep > 0) {
+            V(REPREZENTANCI);
+        } else {
+            V(OCHRONA);
+            ile_wolnych++;
+        }
+    } else {
+        V(OCHRONA);
+    }
+
+}
