@@ -1,0 +1,60 @@
+int N // liczba drużyn
+int K // liczba zawodników w drużynie
+
+int ile_drużyn_czeka = 0
+int ile_w_drużynie_czeka[N] = {0 .. 0}
+int ile_na_boisku = 0
+semaphore OCHRONA = 1
+semaphore DRUŻYNA[N] = {0 .. 0}
+semaphore REP = 0
+int drużyna1 = -1
+int drużyna2 = -1
+
+process Zawodnik(int drużyna) 
+  P(OCHRONA)
+  ile_w_drużynie_czeka[drużyna]++
+
+  if (ile_w_drużynie_czeka[drużyna] == K)
+    ile_drużyn_czeka++
+
+  if (ile_w_drużynie_czeka[drużyna] < K || ile_drużyn_czeka < 2 || ile_na_boisku > 0) // czekam
+    V(OCHRONA)
+    P(DRUŻYNA[drużyna])
+
+  // jest cała moja drużyna i jakaś przeciwna
+
+  drużyna1 = drużyna
+  drużyna2 = wybierz_przeciwnika()
+  
+  ile_w_drużynie_czeka[drużyna]--
+  ile_na_boisku++
+
+  if (ile_na_boisku < 2*K)
+    V(DRUŻYNA[przeciwnik(drużyna)])  
+  else
+    V(OCHRONA)
+
+  mecz(ta_druga)
+
+  P(OCHRONA)
+
+  ile_na_boisku--
+
+  if (ile_na_boisku == 0)
+    if ile_drużyn_czeka >= 2 && /*ile_na_boisku == 0*/)
+      V(DRUŻYNA[wybierz_przeciwnika()])
+    else
+      V(OCHRONA)
+  else
+    V(OCHRONA)
+
+
+
+
+
+
+
+
+
+
+
