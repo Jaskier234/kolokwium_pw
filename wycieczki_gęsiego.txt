@@ -1,0 +1,63 @@
+int MIN, MAX
+
+process Turysta(int id)
+  własne_sprawy()
+  int (przewodnik, poprzedni, następny) = Wycieczki.chcę_wycieczkę(id)
+  int wycieczka(przewodnik, poprzedni, następny)
+  Wycieczki.koniec_wycieczki_turysta()
+
+process Przewodnik
+  własne_sprawy()
+  int ile_osób = Wycieczki.chcę_prowadzić_wycieczkę()
+  prowadzę_wycieczkę(ile_osób)
+  Wycieczki.koniec_wycieczki_przewodnik()
+  
+monitor Wycieczki
+  condition turyści, przewodnicy
+  int ile_na_wycieczce = 0
+  int aktualny_przewodnik
+  int ostatni_turysta = 0
+  int budzący_turysta = 0
+  int przedostatni = 0;
+
+  (int, int, int) chcę_wycieczkę(int id) // turysta
+    if (empty(przewodnicy))
+      wait(turyści)
+    
+    int popr = 0, nast = 0;
+
+    ile_na_wycieczce++
+    if (ile_na_wycieczce == MAX || (empty(turyści) && ile_na_wycieczce >= MIN)) // turyści są budzeni jeśli jest ich conajmniej MIN
+      budzący_turysta = id
+      signal(przewodnicy)
+      nast = przedostatni
+      przedostatni = 0
+      ile_na_wycieczce = 0
+    else
+      nast = ostatni_turysta
+      ostatni_turysta = id
+      signal(turyści)
+      
+      if (empty(turyści) && przedostatni == 0) // przedostatni turysta
+        popr = budzący_turysta
+        przedostatni = id
+      else 
+        popr = ostatni_turysta
+        ostatni_turysta = id
+
+    return (aktualny_przewodnik, popr, nast)
+
+  int chcę_prowadzić_wycieczkę(int id_przewodnika)
+    if (ile_na_wycieczce < MIN || empty(turyści)))
+      wait(przewodnicy)
+    
+    aktualny_przewodnik = id_przewodnika
+
+    signal(turyści)
+
+    return ile_na_wycieczce
+
+
+
+
+
