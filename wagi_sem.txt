@@ -1,0 +1,33 @@
+int K;
+Semaphore OCHRONA = 1
+Semaphore PROCESY[2] = {0, 0}
+int suma_wag_czekających[2] = {0, 0}
+int suma_wag_w_środku[2] = {0, 0}
+
+process P(int t, int w)
+  while(true)
+    P(OCHRONA)
+
+    suma_wag_czekających[t] += w
+    if (suma_wag_czekających[0] < 2*K || suma_wag_czekających[1] < 2*K)
+      V(OCHRONA)
+      P(PROCESY[t])
+  
+    if (suma_wag_w_środku[t] < 2*K)
+      V(PROCESY[t])
+    else if (suma_wag_w_środku[1-t] < 2*K)
+      V(PROCESY[1-t])
+    else
+      V(OCHRONA)
+
+    zadanie()
+
+    P(OCHRONA)
+    suma_wag_w_środku[t] -= w
+    if (suma_wag_w_środku[0] == 0 && suma_wag_w_środku[1] == 0)
+      if (suma_wag_czekających[0] >= 2*K && suma_wag_czekających[1] >= 2*K)
+        V(PROCESY[1-t]) // dziedziczenie SK. Mógłby być dowolny
+      else
+        V(OCHRONA)
+    else
+      V(OCHRONA)
