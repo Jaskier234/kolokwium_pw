@@ -1,0 +1,53 @@
+int T
+
+process Turysta
+  while (true)
+    własne_sprawy()
+
+    int nr_przewodnika = Trudne.chcę wycieczkę(losuj(T))
+
+    wycieczka(nr_przewodnika)
+
+process Przewodnik(int u)
+  while (true)
+    własne_sprawy()
+
+    Trudne.chcę_pracować(u)
+
+    wycieczka()
+
+
+monitor Trudne
+  condition turyści[T], przewodnicy[T]
+  int ilu_turystów_czeka[T]
+  int nr_przewodnika
+  int ilu_turystów_na_wycieczce = 0
+  int aktualna_grupa
+
+  int chcę_wycieczkę(int t)
+    ilu_czeka[t]++
+    if (!jest_przewodnik_o_uprawnieniach_conajmniej(t) || ilu_czeka[t] < GMIN(t))
+      wait(turyści[t])
+      ilu_turystów_na_wycieczce++
+      if (ilu_turystów_na_wycieczce < GMAX(t))
+        signal(turyści[t])
+    else
+      ilu_czeka[t] = 0
+      ilu_turystów_na_wycieczce++
+      aktualna_grupa = t
+      trudność_przewodnika = weź_przewodnika(t) // wiemy, że jest
+      signal(przewodnicy[trudnośc_przewodnika])
+
+    return nr_przewodnika
+
+  int chcę_pracować(int t)
+    if (!jest_grupa_o_trudności_conajwyżej(t)) 
+      wait(przewodnicy[t])
+    else
+      nr_przewodnika = t
+      aktualna_grupa = wybierz_grupę_dla_przewdonika(t)
+  
+    signal(turyści[aktualna_grupa])
+
+    ilu_jest_na_wycieczce = 0
+
